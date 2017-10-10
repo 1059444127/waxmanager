@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>蜡块归档</title>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/bootstrap/css/bootstrap.css}" rel="stylesheet">
+    <link th:href="@{/bootstrap/css/bootstrap-theme.css}" rel="stylesheet">
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script th:src="@{/bootstrap/js/jquery-3.2.1.min.js}"></script>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <button type="button" class="btn btn-primary" onclick="flash()">继续加载</button>
+            <!--蜡块入库表-->
+            <table class="table table-bordered">
+                <caption>蜡块入库</caption>
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>病理号</th>
+                        <th>原图片</th>
+                        <th>存储位置</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="content">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $.ajax({
+            url: '/waxIn/allTmpWaxIn',
+            type: 'get',
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var content = '<tr id="' + data[i].waxinid + '">' +
+                        '<td>'+ (i + 1) +'</td>' +
+                        '<td>'+data[i].pathnum+'</td>' +
+                        '<td><img src="' + data[i].imgurl + '" style="height: 23px"></td>' +
+                        '<td>'+data[i].location+'</td>' +
+                        '<td><button onclick="waxIn(' + data[i].waxinid + ')" class="btn btn-success btn-xs">确认入库</button> <button onclick="" class="btn btn-danger btn-xs">修改病理号</button> </td>' +
+                        '</tr>';
+                    $("#content").append(content);
+                }
+            }
+        });
+    });
+
+    // 蜡块号识别
+    function flash() {
+        window.location.href = '/show';
+    }
+
+    // 确认入库
+    function waxIn(id) {
+        $.ajax({
+            url: '/wax/in/' + id,
+            type: 'post',
+            success: function (data) {
+                alert(data);
+                // 刷新当前网页
+                window.location.href = '/show';
+            }
+        });
+    }
+</script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script th:src="@{/bootstrap/js/bootstrap.js}"></script>
+</body>
+</html>
