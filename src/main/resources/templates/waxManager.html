@@ -14,6 +14,13 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script th:src="@{/bootstrap/js/jquery-3.2.1.min.js}"></script>
 
+    <!-- bootstrap-table -->
+    <link type="text/css" rel="stylesheet" th:href="@{/bootstrap-table/css/bootstrap-table.min.css}" />
+    <script type="text/javascript" th:src="@{/bootstrap-table/js/bootstrap-table.min.js}"></script>
+    <script type="text/javascript" th:src="@{/bootstrap-table/js/bootstrap-table-zh-CN.min.js}"></script>
+
+    <!-- myjs -->
+    <script th:src="@{/custom/js/myjs.js}"></script>
 </head>
 <body>
 
@@ -21,26 +28,8 @@
     <div class="row">
         <div class="col-xs-12">
             <!--已入库蜡块表-->
-            <table class="table table-bordered">
-                <caption>蜡块库</caption>
-                <thead>
-                    <tr>
-                        <th>编号</th>
-                        <th>病理号</th>
-                        <th>原图片</th>
-                        <th>存储位置</th>
-                        <th>入库人</th>
-                        <th>入库时间</th>
-                        <th>出库人</th>
-                        <th>出库时间</th>
-                        <th>出库原因</th>
-                        <th>状态</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="content">
+            <table class="table table-bordered" id="waxManagerTb">
 
-                </tbody>
             </table>
         </div>
     </div>
@@ -48,28 +37,9 @@
 
 <script>
     $(function () {
-        $.ajax({
-            url: '/wax/all',
-            type: 'get',
-            success: function (data) {
-                for (var i = 0; i < data.length; i++) {
-                    var content = '<tr id="' + data[i].waxinid + '">' +
-                        '<td>'+ (i + 1) +'</td>' +
-                        '<td>'+data[i].pathnum+'</td>' +
-                        '<td><img src="' + data[i].imgurl + '" style="height: 23px"></td>' +
-                        '<td>'+data[i].location+'</td>' +
-                        '<td>'+data[i].iner+'</td>' +
-                        '<td>'+data[i].intime+'</td>' +
-                        '<td>'+data[i].ouer+'</td>' +
-                        '<td>'+data[i].outtime+'</td>' +
-                        '<td>'+data[i].outreason+'</td>' +
-                        '<td>'+data[i].state+'</td>' +
-                        '<td><button onclick="" class="btn btn-danger btn-xs">出库</button> </td>' +
-                        '</tr>';
-                    $("#content").append(content);
-                }
-            }
-        });
+
+        // 初始化表格
+        initTable();
     });
 
     // 蜡块号识别
@@ -82,6 +52,92 @@
             }
         });
     }
+
+    <!-- 表格初始化 -->
+    function initTable() {
+        $("#waxManagerTb").bootstrapTable({
+            url: '/wax/all',
+            method: 'get',
+            columns: [{
+                field: 'id',
+                checkbox: true,
+            },{
+                field: 'number',
+                title: '编号',
+                formatter:function (value, row, index) {
+                    return index + 1;
+                },
+                valign: 'middle',
+            },{
+                field: 'pathnum',
+                title: '病理号',
+            },{
+                field: 'imgurl',
+                title: '原图片',
+                formatter: function (value, row, index) {
+                    return '<img src="' + value + '" style="height: 23px"></td>';
+                }
+            },{
+                field: 'location',
+                title: '存放位置',
+                formatter: function (value, row, index) {
+                    return formatLocation(value);
+                }
+            },{
+                field: 'iner',
+                title: '入库人',
+            },{
+                field: 'intime',
+                title: '入库时间',
+                formatter: function (value, row, index) {
+                    return timeStamp2String(value);
+                }
+            },{
+                field: 'ouer',
+                title: '出库人',
+            },{
+                field: 'outtime',
+                title: '出库时间',
+            },{
+                field: 'outreason',
+                title: '出库原因',
+            },{
+                field: 'state',
+                title: '状态',
+                formatter: function (value, row, index) {
+                    if (value == 1) {
+                        return '<span class="label label-info">在库</span>';
+                    }
+                    return '<span class="label label-danger">已出库</span>';
+                }
+            },{
+                field: 'opr',
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return '<button class="btn btn-primary btn-xs">插入蜡块</button> ' +
+                        '<button class="btn btn-danger btn-xs">出库</button>';
+                }
+            }],
+            showColumns: true,
+            striped: true,
+//            pagination: true,
+//            sidePagination:'server',
+//            pageNumber:1,
+//            pageSize:20,
+//            pageList:[1,2,5,50,100],
+            search:true,
+            showRefresh:true,
+            showToggle:true,
+            showPaginationSwitch:true,
+            buttonsAlign:'right',
+            paginationPreText:'上一页',
+            paginationNextText:'下一页',
+            clickToSelect:true,
+//            toolbar:'#toolbar',
+        });
+    }
+
 </script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->

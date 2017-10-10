@@ -3,6 +3,7 @@ package com.lm.waxmanager.service;
 import com.lm.waxmanager.domain.Wax;
 import com.lm.waxmanager.domain.WaxInTmp;
 import com.lm.waxmanager.mapper.WaxMapper;
+import com.lm.waxmanager.utils.GenerateLocationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,11 @@ public class WaxService {
         Wax wax = new Wax();
         wax.setPathnum(waxInTmp.getPathnum());
         wax.setImgurl(waxInTmp.getImgurl());
-        wax.setLocation(waxInTmp.getLocation());
+
+        // 获取当前数据库中最后一个wax
+        Wax lastOne = this.getLastOne();
+        wax.setLocation(new GenerateLocationUtil().getLocation(lastOne));
+
         wax.setIner("系统管理员");
         wax.setIntime(new Timestamp(System.currentTimeMillis()));
         wax.setState(1);
@@ -49,6 +54,14 @@ public class WaxService {
         } else {
             return "入库失败";
         }
+    }
+
+    /**
+     * 获取最后一个wax
+     * @return
+     */
+    public Wax getLastOne() {
+        return this.waxMapper.queryLastOne();
     }
 
 }

@@ -1,8 +1,7 @@
 package com.lm.waxmanager.mapper;
 
 import com.lm.waxmanager.domain.Wax;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -13,6 +12,12 @@ public interface WaxMapper {
 
     @InsertProvider(type = waxDao.class, method = "addwax")
     int insertWax(Wax wax);
+
+    @Select("select * from wax where waxid = (select max(waxid) from wax)")
+    Wax queryLastOne();
+
+    @Select("select * from wax where waxid = #{waxid})")
+    Wax queryById(int waxid);
 
     class waxDao {
         /**
